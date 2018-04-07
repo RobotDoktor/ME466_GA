@@ -14,4 +14,17 @@ T_W=cross(w_pos,W); %torque due to bed weight
 T_F=cross(f_pos, f_dir); %torque vector due to piston force divided by force magnitude
 F=-T_W(2)/T_F(2)
 
-%%
+%% Buckling
+d_shaft=0.0254;
+a_shaft=pi*d_shaft^2/4;
+
+%% Pressure
+pressure_i=F/a_shaft
+pressure_ext=101*10^3;
+thickness=0.2;
+r_in=d_shaft/2;
+r_out=r_in+thickness;
+r=r_out-r_in;
+
+axial_stress=(pressure_i*r_in^2-pressure_ext*r_out^2)/(r_out^2-r_in^2)
+tangential_stress=(pressure_i*r_in^2-pressure_ext*r_out^2)/(r_out^2-r_in^2)+(r_in^2*r_out^2*(pressure_i-pressure_ext))/(r*(r_out^2-r_in^2))
