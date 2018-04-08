@@ -15,16 +15,28 @@ T_F=cross(f_pos, f_dir); %torque vector due to piston force divided by force mag
 F=-T_W(2)/T_F(2)
 
 %% Buckling
-d_shaft=0.0254;
-a_shaft=pi*d_shaft^2/4;
+S_y=303*10^6; %Pa
+S_ut=365*10^6; %Pa
+
+d_shaft=0.01
+a_shaft=pi.*d_shaft.^2./4;
 
 %% Pressure
-pressure_i=F/a_shaft
+pressure_i=F./a_shaft;
 pressure_ext=101*10^3;
-thickness=0.2;
-r_in=d_shaft/2;
+thickness=0.005;
+r_in=d_shaft./2;
 r_out=r_in+thickness;
-r=r_out-r_in;
+r=(r_out+r_in)./2;
 
-axial_stress=(pressure_i*r_in^2-pressure_ext*r_out^2)/(r_out^2-r_in^2)
-tangential_stress=(pressure_i*r_in^2-pressure_ext*r_out^2)/(r_out^2-r_in^2)+(r_in^2*r_out^2*(pressure_i-pressure_ext))/(r*(r_out^2-r_in^2))
+axial_stress=(pressure_i.*r_in.^2-pressure_ext.*r_out.^2)/(r_out.^2-r_in.^2)
+tangential_stress=(pressure_i.*r_in.^2-pressure_ext.*r_out.^2)./(r_out.^2-r_in.^2)+(r_in.^2.*r_out.^2.*(pressure_i-pressure_ext))./(r.*(r_out.^2-r_in.^2))
+radial_stress=(pressure_i.*r_in.^2-pressure_ext.*r_out.^2)./(r_out.^2-r_in.^2)-(r_in.^2.*r_out.^2.*(pressure_i-pressure_ext))./(r.*(r_out.^2-r_in.^2))
+
+state=[radial_stress 0 0; 0 tangential_stress 0; 0 0 axial_stress];
+omega1=flipud(eig(state))
+omega_1p=sqrt(omega1(1,1)^2+omega1(2,1)^2+omega1(3,1)^2-(omega1(1,1).*omega1(2,1)+omega1(2,1).*omega1(3,1)+omega1(1,1).*omega1(3,1)))
+
+N_n=S_y./omega_1p %Factor of safety calculations based on distortion energy theorem
+N_s=S_ut.*0.577./(abs(omega1(1,1)-omega1(3,1))./2)
+
