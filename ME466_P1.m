@@ -18,17 +18,18 @@ F=-T_W(2)/T_F(2)
 S_y=303*10^6; %Pa
 S_ut=303*10^6; %Pa
 
-d_shaft=[0.01 0.02 0.03 0.04];
+d_shaft=0.005:0.001:0.05;;
 
 
 %% Pressure
 
 for i=1:length(d_shaft)
-
+    
+r_in=d_shaft(i)./2;
 a_shaft=pi.*d_shaft(i).^2./4;
 pressure_i=F./a_shaft;
-thickness=0.01;
-r_in=d_shaft(i)./2;
+thickness=0.008;
+% thickness=0.02-r_in;
 r_out=r_in+thickness;
 r=(r_out+r_in)./2;
 
