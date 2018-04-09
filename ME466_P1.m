@@ -52,7 +52,7 @@ end
 
 figure
 plot(thickness_,FoSc)
-title('Relationship between Pressure factor of safety and piston diameter')
+title('Relationship between Pressure Factor of Safety and Cylinder Thickness')
 xlabel('Cylinder Thickness (m)')
 ylabel('Factor of Safety')
 
@@ -88,7 +88,7 @@ end
 
 figure
 plot(d_shaft,FoS)
-title('Relationship between Pressure factor of safety and piston diameter')
+title('Relationship between Pressure Factor of Safety and Piston Diameter')
 xlabel('Piston Diameter (m)')
 ylabel('Factor of Safety')
 
