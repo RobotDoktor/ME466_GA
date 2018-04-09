@@ -16,7 +16,7 @@ F=-T_W(2)/T_F(2)
 
 %% Buckling
 S_y=303*10^6; %Pa
-S_ut=365*10^6; %Pa
+S_ut=303*10^6; %Pa
 
 d_shaft=[0.01 0.02 0.03 0.04];
 
@@ -27,8 +27,7 @@ for i=1:length(d_shaft)
 
 a_shaft=pi.*d_shaft(i).^2./4;
 pressure_i=F./a_shaft;
-pressure_ext=0;
-thickness=0.005;
+thickness=0.01;
 r_in=d_shaft(i)./2;
 r_out=r_in+thickness;
 r=(r_out+r_in)./2;
@@ -36,9 +35,9 @@ r=(r_out+r_in)./2;
 % axial_stress=(pressure_i.*r_in.^2-pressure_ext.*r_out.^2)/(r_out.^2-r_in.^2)
 % tangential_stress=(pressure_i.*r_in.^2-pressure_ext.*r_out.^2)./(r_out.^2-r_in.^2)+(r_in.^2.*r_out.^2.*(pressure_i-pressure_ext))./(r.*(r_out.^2-r_in.^2))
 % radial_stress=(pressure_i.*r_in.^2-pressure_ext.*r_out.^2)./(r_out.^2-r_in.^2)-(r_in.^2.*r_out.^2.*(pressure_i-pressure_ext))./(r.*(r_out.^2-r_in.^2))
-axial_stress=pressure_i.*r_in.^2./(r_out.^2-r_in.^2)
-tangential_stress=r_in.^2.*pressure_i./(r_out.^2-r_in.^2).*(1+r_out.^2./r.^2)
-radial_stress=r_in.^2.*pressure_i./(r_out.^2-r_in.^2).*(1-r_out.^2./r.^2)
+axial_stress=pressure_i.*r_in.^2./(r_out.^2-r_in.^2);
+tangential_stress=r_in.^2.*pressure_i./(r_out.^2-r_in.^2).*(1+r_out.^2./r.^2);
+radial_stress=r_in.^2.*pressure_i./(r_out.^2-r_in.^2).*(1-r_out.^2./r.^2);
 
 
 
@@ -47,9 +46,9 @@ omega1=flipud(eig(state))
 omega_1p=sqrt(omega1(1,1)^2+omega1(2,1)^2+omega1(3,1)^2-(omega1(1,1).*omega1(2,1)+omega1(2,1).*omega1(3,1)+omega1(1,1).*omega1(3,1)));
 
 N_n=S_y./omega_1p; %Factor of safety calculations based on distortion energy theorem
-N_s=S_ut.*0.577./(abs(omega1(1,1)-omega1(3,1))./2);
+N_s=S_y.*0.577./(abs(omega1(1,1)-omega1(3,1))./2);
 FoS(i)=min(N_n,N_s)
-i=i+1;
+
 end
 
 figure
