@@ -1,0 +1,165 @@
+% clc, clear all, clear home, format short, format compact
+% %% Buckling
+% % ME466 - Project 1 - Group 27 
+% %(Daniel Howard, Nick Hassler, Josiah Chan, Richard Estey)
+% 
+% %% Slenderness Ratio
+% 
+% F = 7.3738e+04; % from force balance
+% l = 3.4; %length of column (m)
+% %  r = .00635/2:0.00635/2:0.0508/2;% radius of column (m)
+% r = 0.005:0.001:0.025;
+% 
+% A = pi*r.^2; % cross sectional area (m^2)
+% I = pi*r.^4; % second moment of area (m^4)
+% % k = zeros(8,1);
+% 
+% i=1;
+% for i = 1:length(r)
+%     k(i) = sqrt(I(i)/A(i));
+% end
+% 
+% Sr = l./k; %slenderness ratio
+% 
+% %% Boundary conditions: Fixed-pinned
+% 
+% % because top of the shaft must be able to rotate to lift the bed, and the
+% % bottom of the shaft is trapped by the pressure vessel in two directions,
+% % and the load will always be compression.
+% 
+% leff = 0.8*l; %effective length based on AISC recommendation
+% Sr_cl = leff./k; % Slenderness ratio for critical loads 
+% % Sr_cl = Sr_cl.'; % flip to row vector
+% 
+% 
+% %% Once material is chosen, plot Pcr/A curve Euler/Johnson
+% % I dont have access to the COLMPLOT function that apparently comes with
+% % the book.  I think it would be useful to have the Euler Johnson curve in
+% % our report (pg 198 in Machine design 4th Ed). Our column is in the
+% % Johnson region
+% 
+% E = 200e9; % average modulus for carbon steel (Pa)
+% 
+% % Syc = (pi^2)*E./(Sr_cl.^2); % Compressive yield strength (Pa)
+% Syc=303*10^6;
+% SrD = pi*sqrt(2*E./Syc); % mid point of Euler-Johnson curve
+% 
+% % critical load from force balance is F, Pcr is plotted curve of critical
+% % loads by area vector
+% % Pcr = ((pi^2)*E.*A)./Sr_cl.^2;
+% Pcr = A.*(Syc-1./E.*(Syc.*Sr_cl./(2*pi)).^2);
+% P_act = F%./A;
+% FoS = Pcr./P_act
+% 
+% figure (1)
+% plot(r,Pcr)
+% hold on
+% line([0,r(length(r))],[F,F])
+% xlabel('radius (m)')
+% ylabel('Critical Load (N)')
+% title('Critical load by radius')
+% 
+% figure (2)
+% plot(2.*r,FoS)
+% title('Relationship between Buckling factor of safety and piston diameter')
+% xlabel('Piston Diameter (m)')
+% ylabel('Factor of Safety')
+% %from the plot above, we see that the critical load and the radius
+% %intersect at about 0.016 meters.
+% 
+% %% Using the radius found above
+% % 
+% % r_true = 0.016; % (m)
+% % d_true = r_true*2/.0254; % (in)
+% % A_true = pi*r_true^2; % (m^2)
+% % I_true = pi*r_true^4; % second moment of area (m^4)
+% % k_true = sqrt(I/A); % radius of gyration (m)
+% % 
+% % 
+% % Sr_true = leff/k_true; %actual slenderness ratio
+% % Syc_true = (pi^2)*E/(Sr_true^2); %137 MPa
+% % 
+% % stress_true = F/A_true; % 91.7 MPA
+% % 
+% % FoS = Syc_true/stress_true % Fos =~ 1.5
+% 
+
+clc, clear all, close all, clear home, format short, format compact
+%% Buckling
+% ME466 - Project 1 - Group 27 
+%(Daniel Howard, Nick Hassler, Josiah Chan, Richard Estey)
+
+%% Slenderness Ratio
+
+F = 7.3738e+04; % from force balance
+l = 1.04; % length of column (m)
+d = .00635:0.00635:0.0508;% radius of column (m)
+r = d./2; % radius vector
+
+A = pi*r.^2; % cross sectional area (m^2)
+I = pi*r.^4; % second moment of area (m^4)
+% k = zeros(8,1);
+
+i=1;
+for i = 1:8
+    k(i) = sqrt(I(i)/A(i));
+end
+
+Sr = l./k; %slenderness ratio
+
+%% Boundary conditions: Fixed-pinned
+
+% because top of the shaft must be able to rotate to lift the bed, and the
+% bottom of the shaft is trapped by the pressure vessel in two directions,
+% and the load will always be compression.
+
+leff = 0.8*l; % effective length based on AISC recommendation
+Sr_cl = leff./k; % Slenderness ratio for critical loads 
+% Sr_cl = Sr_cl.'; % flip to row vector
+
+
+%% Once material is chosen, plot Pcr/A curve Euler/Johnson
+% Our column is in the Johnson region
+
+E = 200E9; % average modulus for carbon steel (Pa)
+
+% Syc = [179E6 207E6 259E6 276E6 303E6 393E6 441E6 462E6]; 
+Syc=[179E6 179E6 179E6 179E6 179E6 179E6 179E6 179E6];
+%list of material properties from table A9. 
+%Order is: Hot rolled 1010,1020,1030,1040- Cold rolled 1010,1020,1030,1040
+SrD = pi*sqrt(2*E./Syc); % mid point of Euler-Johnson curve (not needed?)
+
+% load from force balance is F, Pcr is plotted curve of critical
+% loads by area vector
+for i=1:8
+    Pcr(i) = (Syc(i)-1/E*((Syc(i)*Sr_cl(i))/(2*pi))^2)*A(i); % Johnson equation 4.43
+end
+
+plot(d,Pcr)
+hold on
+line([d(1),d(8)],[F,F])
+xlabel('radius (m)')
+ylabel('Critical Load (N)')
+title('Critical load by diameter for Johnson Column')
+xlim([min(d) max(d)])
+
+
+
+%% Creating the FoS by diameter plot
+
+FoS = (Pcr./A)./(F./A) % Buckling FoS is P_critical/P_actual
+
+figure(2)
+plot(d,FoS)
+xlabel('diameter (m)')
+ylabel('Buckling Factor of safety')
+title('Factor of Safety by diameter')
+xlim([min(d) max(d)])
+
+figure(3)
+plot(d,FoS)
+xlabel('diameter (m)')
+ylabel('Buckling Factor of safety')
+title('Factor of Safety by diameter (zoomed)')
+ylim([1.2 2])
+% xlim([.043 .046])
